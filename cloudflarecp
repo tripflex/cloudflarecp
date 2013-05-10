@@ -1,0 +1,51 @@
+#!/bin/bash
+# @title CloudFlare cPanel Setup Script
+# ------------------------------------------------------------------------------------------
+# @author Myles McNamara
+# @date 05.09.2013
+# @version 1.0
+# ------------------------------------------------------------------------------------------
+# @usage ./cloudflarecp <company name>
+# ------------------------------------------------------------------------------------------
+# @copyright Copyright (C) 2013  Myles McNamara
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+# ------------------------------------------------------------------------------------------
+#
+# Enter your CloudFlare API Key below (REQUIRED)
+APIKEY=
+#
+clear
+	if [ "$#" -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] || [[ $1 == -* ]]; then
+	 	echo "Usage: $0 companyname" >&2
+	 	exit
+	fi
+cd /usr/local/cpanel
+echo "Downloading CloudFlare"
+curl -k -L https://github.com/cloudflare/CloudFlare-CPanel/tarball/master > cloudflare.tar.gz
+tar -zxvf cloudflare.tar.gz
+cd cloudflare-CloudFlare-*/cloudflare/
+echo "Starting Install, this could take anywhere from 15 seconds to 4 minutes to complete."
+./install_cf $APIKEY mod_cf "$1"
+echo "Install complete, removing temporary files"
+cd ../../
+rm -rf cloudflare-CloudFlare-CPanel-*
+echo "Temporary files removed"
+echo "Adding CloudFlare IP subnets to CSF ignore folder"
+wget --output-document=- "https://www.cloudflare.com/ips-v4" >> /etc/csf/csf.ignore
+echo "Restarting CSF..."
+csf -r
+echo "Done."
+echo "Here's the config:"
+cat etc/cloudflare.json
