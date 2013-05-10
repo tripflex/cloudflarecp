@@ -1,0 +1,1 @@
+This script will help to automate installing CloudFlare on cPanel servers.  It will install CloudFlare, remove all installer files, then add CloudFlare IPs to the csf.ignore list.
