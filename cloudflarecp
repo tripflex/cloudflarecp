@@ -2,7 +2,7 @@
 # @title CloudFlare cPanel Setup Script
 # ------------------------------------------------------------------------------------------
 # @author Myles McNamara
-# @date 05.09.2013
+# @date 5.21.2013
 # @version 1.0
 # @source https://gh.smyl.es/cloudflarecp
 # @description Install CloudFlare Core and add IPs to  CSF Firewall ignore list (csf.ignore) on cPanel server 
