@@ -20,7 +20,7 @@ chmod +x cloudflarecp
 Edit cloudflarecp using nano, vim, whatever flavor your like
 ``` bash
 nano cloudflarecp
-``` bash
+```
 
 Add API key
 ``` bash
