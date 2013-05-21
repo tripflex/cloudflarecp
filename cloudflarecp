@@ -4,6 +4,8 @@
 # @author Myles McNamara
 # @date 05.09.2013
 # @version 1.0
+# @source https://gh.smyl.es/cloudflarecp
+# @description Install CloudFlare Core and add IPs to  CSF Firewall ignore list (csf.ignore) on cPanel server 
 # ------------------------------------------------------------------------------------------
 # @usage ./cloudflarecp <company name>
 # ------------------------------------------------------------------------------------------
@@ -27,25 +29,44 @@
 APIKEY=
 #
 clear
-	if [ "$#" -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] || [[ $1 == -* ]]; then
-	 	echo "Usage: $0 companyname" >&2
-	 	exit
-	fi
+if [ "$#" -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] || [[ $1 == -* ]]; then
+	echo "Usage: $0 companyname" >&2
+	exit
+fi
+
 cd /usr/local/cpanel
+
+# Download CloudFlare cPanel Module from GitHub
 echo "Downloading CloudFlare"
 curl -k -L https://github.com/cloudflare/CloudFlare-CPanel/tarball/master > cloudflare.tar.gz
+
+# Extract and go to directory
 tar -zxvf cloudflare.tar.gz
 cd cloudflare-CloudFlare-*/cloudflare/
+
+# Start Install
 echo "Starting Install, this could take anywhere from 15 seconds to 4 minutes to complete."
 ./install_cf $APIKEY mod_cf "$1"
 echo "Install complete, removing temporary files"
+
+# Remove install files
 cd ../../
 rm -rf cloudflare-CloudFlare-CPanel-*
 echo "Temporary files removed"
-echo "Adding CloudFlare IP subnets to CSF ignore folder"
+
+# Add CloudFlare IPv4 to CSF ignore list
+echo "Adding CloudFlare IPv4 subnets to CSF ignore folder"
 wget --output-document=- "https://www.cloudflare.com/ips-v4" >> /etc/csf/csf.ignore
+
+# Add CloudFlare IPv6 to CSF ignore list
+echo "Adding CloudFlare IPv6 subnets to CSF ignore folder"
+wget --output-document=- "https://www.cloudflare.com/ips-v6" >> /etc/csf/csf.ignore
+
+# Restart CSF
 echo "Restarting CSF..."
 csf -r
 echo "Done."
+
+# Upon completion, output config file
 echo "Here's the config:"
 cat etc/cloudflare.json
